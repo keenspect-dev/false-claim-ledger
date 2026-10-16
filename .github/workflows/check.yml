@@ -1,0 +1,19 @@
+name: check
+on:
+  push:
+  pull_request:
+
+jobs:
+  tests-and-ratchet:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Tests
+        run: node --test
+      - name: Ratchet (overdue durable-fix debt may shrink, never grow)
+        # For a real ledger drop --today so the check uses the current date.
+        # It is pinned here only because the example ledger has fixed dates.
+        run: node bin/claims.mjs check --ledger ledger/example-ledger.json --baseline ledger/example-baseline.json --today 2025-03-31

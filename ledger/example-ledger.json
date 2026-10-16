@@ -1,0 +1,147 @@
+{
+  "version": 1,
+  "claims": [
+    {
+      "id": "FC-001",
+      "stated_at": "2025-01-06",
+      "stated_where": "review report",
+      "claim": "No lint growth versus the base branch.",
+      "measurement": {
+        "instrument": "lint run on both trees, compared by error count",
+        "result": "Re-run from the correct directory: 4 new errors."
+      },
+      "true_value": "4 new lint errors",
+      "caught_by": "peer-agent",
+      "root_cause_category": "proxy-substitution",
+      "root_cause": "The comparison ran from the wrong working directory, so the linter silently dropped its config and both runs linted nothing. 'Same output on both sides' was read as 'no growth'.",
+      "retraction": {
+        "at": "2025-01-07",
+        "text": "Retracted: the lint comparison was invalid, not clean. Real result is 4 new errors."
+      },
+      "durable_fix": {
+        "description": "Comparison script exits non-zero when either run loaded zero config files or checked zero files.",
+        "allowance_days": 7,
+        "landed": true,
+        "landed_at": "2025-01-10",
+        "evidence": "commit 'lint-compare: refuse empty runs' plus a test that plants a missing config"
+      }
+    },
+    {
+      "id": "FC-002",
+      "stated_at": "2025-01-14",
+      "stated_where": "task tracker comment",
+      "claim": "All tests pass.",
+      "measurement": {
+        "instrument": "same command, with the exit status of each pipeline stage printed",
+        "result": "The test runner exited 1; the pipeline reported 0 because its last stage was `tee`."
+      },
+      "true_value": "3 failing tests",
+      "caught_by": "automated-check",
+      "root_cause_category": "proxy-substitution",
+      "root_cause": "Read the exit status of the last pipeline stage (a log writer) as the status of the test runner.",
+      "retraction": {
+        "at": "2025-01-14",
+        "text": "Retracted: tests do not pass. 3 failures, hidden by the pipeline's exit status."
+      },
+      "durable_fix": {
+        "description": "Shell wrapper for test runs sets pipefail and reports the runner's own status; bare pipelines into tee are rejected by a lint rule.",
+        "allowance_days": 14,
+        "landed": false
+      }
+    },
+    {
+      "id": "FC-003",
+      "stated_at": "2025-02-03",
+      "stated_where": "hand-off note",
+      "claim": "The change has landed on the main branch.",
+      "measurement": {
+        "instrument": "git branch --contains <commit> on the main branch",
+        "result": "Commit is reachable only from a side branch."
+      },
+      "true_value": "committed on a side branch, not on main",
+      "caught_by": "owner",
+      "root_cause_category": "design-intent-as-effect",
+      "root_cause": "The merge was the plan and the commit exists, so 'landed' was stated from the plan without checking where the commit was reachable.",
+      "retraction": {
+        "at": "2025-02-04",
+        "text": "Retracted: the change is not on main. Merge is still pending."
+      },
+      "durable_fix": {
+        "description": "Hand-off template has no free-text 'landed' field; it embeds the output of a reachability check against main.",
+        "allowance_days": 14,
+        "landed": false
+      }
+    },
+    {
+      "id": "FC-004",
+      "stated_at": "2025-02-10",
+      "stated_where": "status summary",
+      "claim": "The service is currently healthy.",
+      "measurement": {
+        "instrument": "live health endpoint",
+        "result": "Endpoint returns 503; the last 200 was 6 hours earlier."
+      },
+      "true_value": "unhealthy since about 6 hours before the claim",
+      "caught_by": "owner",
+      "root_cause_category": "stale-value-as-live",
+      "root_cause": "Restated a value from an earlier report without re-reading it, and without a timestamp that would have exposed its age.",
+      "retraction": {
+        "at": "2025-02-10",
+        "text": "Retracted: the service was down when this was written."
+      },
+      "durable_fix": {
+        "description": "Status lines are generated from a probe that prints the read time; hand-typed status values are rejected in summaries.",
+        "allowance_days": 30,
+        "landed": false
+      }
+    },
+    {
+      "id": "FC-005",
+      "stated_at": "2025-02-20",
+      "stated_where": "review report",
+      "claim": "Only two call sites use the deprecated function.",
+      "measurement": {
+        "instrument": "full-tree search with the output limit removed",
+        "result": "The tool showed the first 2 of 11 matches; there are 11 call sites."
+      },
+      "true_value": "11 call sites",
+      "caught_by": "peer-agent",
+      "root_cause_category": "display-limit-as-result-set",
+      "root_cause": "Counted the rows shown by a tool that truncates output, and treated the truncated page as the whole result.",
+      "retraction": {
+        "at": "2025-02-21",
+        "text": "Retracted: there are 11 call sites, not 2."
+      },
+      "durable_fix": {
+        "description": "Search wrapper prints 'N of M shown' and exits non-zero when it truncated.",
+        "allowance_days": 14,
+        "landed": true,
+        "landed_at": "2025-03-01",
+        "evidence": "commit 'search: fail on truncation' plus a test with a 50-result fixture"
+      }
+    },
+    {
+      "id": "FC-006",
+      "stated_at": "2025-03-04",
+      "stated_where": "owner-facing report",
+      "claim": "About a third of internal links are broken.",
+      "measurement": {
+        "instrument": "same link checker, run against one link known to resolve",
+        "result": "The checker marked the known-good link as broken."
+      },
+      "true_value": "2 of 140 links broken",
+      "caught_by": "owner",
+      "root_cause_category": "unvalidated-instrument",
+      "root_cause": "The checker's anchor-slug rule differed from the renderer's. It was never run against a link known to work, so its first output was published as a finding.",
+      "retraction": {
+        "at": "2025-03-05",
+        "text": "Retracted: the figure came from a faulty checker. Real count is 2 of 140."
+      },
+      "durable_fix": {
+        "description": "Measurement helper refuses to print a count until its pattern matches a positive control; exits 'unproven' otherwise.",
+        "allowance_days": 14,
+        "landed": false
+      }
+    }
+  ]
+}

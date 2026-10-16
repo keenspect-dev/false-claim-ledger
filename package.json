@@ -1,0 +1,9 @@
+{
+  "name": "false-claim-ledger",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Record falsified agent claims and ratchet the follow-up debt.",
+  "bin": { "claims": "bin/claims.mjs" },
+  "scripts": { "test": "node --test" },
+  "engines": { "node": ">=20" }
+}

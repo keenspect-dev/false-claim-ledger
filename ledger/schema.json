@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "False-claim ledger",
+  "type": "object",
+  "required": ["version", "claims"],
+  "additionalProperties": false,
+  "properties": {
+    "version": { "type": "integer", "minimum": 1, "maximum": 1 },
+    "claims": { "type": "array", "items": { "$ref": "#/$defs/claim" } }
+  },
+  "$defs": {
+    "date": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+    "claim": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id", "stated_at", "stated_where", "claim", "measurement",
+        "true_value", "caught_by", "root_cause_category", "root_cause",
+        "retraction", "durable_fix"
+      ],
+      "properties": {
+        "id": { "type": "string", "pattern": "^FC-\\d{3,}$" },
+        "stated_at": { "$ref": "#/$defs/date" },
+        "stated_where": { "type": "string", "minLength": 1 },
+        "claim": { "type": "string", "minLength": 1 },
+        "measurement": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["instrument", "result"],
+          "properties": {
+            "instrument": { "type": "string", "minLength": 1 },
+            "result": { "type": "string", "minLength": 1 }
+          }
+        },
+        "true_value": { "type": "string", "minLength": 1 },
+        "caught_by": { "enum": ["owner", "peer-agent", "self", "automated-check"] },
+        "root_cause_category": {
+          "enum": [
+            "proxy-substitution",
+            "unvalidated-instrument",
+            "wrong-access-path",
+            "stale-value-as-live",
+            "display-limit-as-result-set",
+            "design-intent-as-effect",
+            "inference-beyond-observation"
+          ]
+        },
+        "root_cause": { "type": "string", "minLength": 1 },
+        "retraction": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["at", "text"],
+          "properties": {
+            "at": { "$ref": "#/$defs/date" },
+            "text": { "type": "string", "minLength": 1 }
+          }
+        },
+        "durable_fix": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["description", "allowance_days", "landed"],
+          "properties": {
+            "description": { "type": "string", "minLength": 1 },
+            "allowance_days": { "type": "integer", "minimum": 0 },
+            "landed": { "type": "boolean" },
+            "landed_at": { "$ref": "#/$defs/date" },
+            "evidence": { "type": "string", "minLength": 1 }
+          }
+        }
+      }
+    }
+  }
+}
